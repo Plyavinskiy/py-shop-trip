@@ -1,5 +1,5 @@
 def format_money(value: float) -> str:
-    if value.is_integer():
+    if isinstance(value, int) or value.is_integer():
         return str(int(value))
 
     value_str = f"{value: .2f}".lstrip()

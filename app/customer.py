@@ -14,7 +14,7 @@ class Customer:
         self,
         name: str,
         product_cart: dict[str, int],
-        location: list[int],
+        location: tuple[int, int],
         money: float,
         car: CarData
     ) -> None:
@@ -22,7 +22,10 @@ class Customer:
         self.product_cart = product_cart
         self.location = location
         self.money = money
-        self.car = Car(**car)
+        self.car = Car(
+            brand=car["brand"],
+            fuel_consumption=car["fuel_consumption"]
+        )
 
     def pay(self, amount: float) -> None:
         self.money = round(self.money - amount, 2)

@@ -16,7 +16,7 @@ class Shop:
     def __init__(
         self,
         name: str,
-        location: list[int],
+        location: tuple[int, int],
         products: dict[str, float]
     ) -> None:
         self.name = name

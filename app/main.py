@@ -1,5 +1,4 @@
 import json
-import os
 
 from app.customer import Customer
 from app.shop import Shop
@@ -7,28 +6,22 @@ from app.utils import format_money
 
 
 def shop_trip() -> None:
-    config_path = os.path.join(os.path.dirname(__file__), "config.json")
-
     try:
-        with open(config_path, "r") as config_file:
+        with open("app/config.json", "r") as config_file:
             data = json.load(config_file)
     except (FileNotFoundError, json.JSONDecodeError) as e:
         print(f"Error loading config: {e}")
         return
 
-    try:
-        fuel_price = data["FUEL_PRICE"]
-        customers_data = data["customers"]
-        shops_data = data["shops"]
-    except KeyError as e:
-        print(f"Missing key in config file: {e}")
-        return
+    fuel_price = data["FUEL_PRICE"]
+    customers_data = data["customers"]
+    shops_data = data["shops"]
 
     customers = [
         Customer(
             name=info["name"],
             product_cart=info["product_cart"],
-            location=info["location"],
+            location=tuple(info["location"]),
             money=info["money"],
             car=info["car"]
         )
@@ -38,7 +31,7 @@ def shop_trip() -> None:
     shops = [
         Shop(
             name=info["name"],
-            location=info["location"],
+            location=tuple(info["location"]),
             products=info["products"]
         )
         for info in shops_data
@@ -61,7 +54,7 @@ def shop_trip() -> None:
             best_shop, total_cost = min(affordable_shops, key=lambda x: x[1])
             print(f"{customer.name} rides to {best_shop.name}\n")
 
-            customer.location = best_shop.location[:]
+            customer.location = best_shop.location
             best_shop.handle_purchase(customer)
             customer.pay(total_cost)
 

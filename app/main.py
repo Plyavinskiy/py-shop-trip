@@ -27,7 +27,7 @@ def shop_trip() -> None:
     customers = []
     for info in customers_data:
         x, y = info["location"]
-        location = (x, y)
+        location = (int(x), int(y))
         customer = Customer(
             name=info["name"],
             product_cart=info["product_cart"],
@@ -40,7 +40,7 @@ def shop_trip() -> None:
     shops = []
     for info in shops_data:
         x, y = info["location"]
-        location = (x, y)
+        location = (int(x), int(y))
         shop = Shop(
             name=info["name"],
             location=location,
@@ -62,7 +62,10 @@ def shop_trip() -> None:
                 affordable_shops.append((shop, cost))
 
         if affordable_shops:
-            best_shop, total_cost = min(affordable_shops, key=lambda x: x[1])
+            best_shop, total_cost = min(
+                affordable_shops,
+                key=lambda item: item[1]
+            )
             print(f"{customer.name} rides to {best_shop.name}\n")
 
             customer.location = best_shop.location

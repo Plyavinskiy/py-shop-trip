@@ -1,7 +1,12 @@
+import math
 from typing import TypedDict
 
 from app.car import Car
 from app.shop import Shop
+
+
+FUEL_CONSUMPTION_UNIT = 100
+ROUND_TRIP_FACTOR = 2
 
 
 class CarData(TypedDict):
@@ -36,7 +41,7 @@ class Customer:
     def calculate_distance_to_shop(self, shop: Shop) -> float:
         x1, y1 = self.location
         x2, y2 = shop.location
-        return ((x1 - x2) ** 2 + (y1 - y2) ** 2) ** 0.5
+        return math.sqrt((x1 - x2) ** 2 + (y1 - y2) ** 2)
 
     def calculate_fuel_cost_to_shop(
         self,
@@ -44,7 +49,9 @@ class Customer:
         fuel_price: float
     ) -> float:
         distance = self.calculate_distance_to_shop(shop)
-        fuel_used = (distance * self.car.fuel_consumption) / 100
+        fuel_used = (
+            distance * self.car.fuel_consumption
+        ) / FUEL_CONSUMPTION_UNIT
         return fuel_used * fuel_price
 
     def calculate_products_cost(self, shop: Shop) -> float:
@@ -61,6 +68,8 @@ class Customer:
         if not self.has_all_products(shop):
             return float("inf")
 
-        fuel_cost = self.calculate_fuel_cost_to_shop(shop, fuel_price) * 2
+        fuel_cost = self.calculate_fuel_cost_to_shop(shop, fuel_price)
+        total_fuel_cost = fuel_cost * ROUND_TRIP_FACTOR
         products_cost = self.calculate_products_cost(shop)
-        return round(fuel_cost + products_cost, 2)
+
+        return round(total_fuel_cost + products_cost, 2)

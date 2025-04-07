@@ -17,25 +17,29 @@ def shop_trip() -> None:
     customers_data = data["customers"]
     shops_data = data["shops"]
 
-    customers = [
-        Customer(
+    customers = []
+    for info in customers_data:
+        x, y = info["location"]
+        location = (x, y)
+        customer = Customer(
             name=info["name"],
             product_cart=info["product_cart"],
-            location=tuple(info["location"]),
+            location=location,
             money=info["money"],
             car=info["car"]
         )
-        for info in customers_data
-    ]
+        customers.append(customer)
 
-    shops = [
-        Shop(
+    shops = []
+    for info in shops_data:
+        x, y = info["location"]
+        location = (x, y)
+        shop = Shop(
             name=info["name"],
-            location=tuple(info["location"]),
+            location=location,
             products=info["products"]
         )
-        for info in shops_data
-    ]
+        shops.append(shop)
 
     for customer in customers:
         print(f"{customer.name} has {format_money(customer.money)} dollars")

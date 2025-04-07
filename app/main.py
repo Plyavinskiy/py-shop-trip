@@ -49,7 +49,8 @@ def shop_trip() -> None:
         shops.append(shop)
 
     for customer in customers:
-        print(f"{customer.name} has {format_money(customer.money)} dollars")
+        initial_cash = customer.count_cash()
+        print(f"{customer.name} has {format_money(initial_cash)} dollars")
 
         affordable_shops = []
         for shop in shops:
@@ -62,21 +63,18 @@ def shop_trip() -> None:
                 affordable_shops.append((shop, cost))
 
         if affordable_shops:
-            best_shop, total_cost = min(
-                affordable_shops,
-                key=lambda item: item[1]
-            )
+            best_shop, total_cost = customer.choose_best_shop(affordable_shops)
             print(f"{customer.name} rides to {best_shop.name}\n")
 
-            customer.location = best_shop.location
-            best_shop.handle_purchase(customer)
+            customer.travel_to(best_shop.location)
             customer.pay(total_cost)
+            best_shop.handle_purchase(customer)
 
+            customer.travel_to(customer.home_location)
             print(f"{customer.name} rides home")
-            print(
-                f"{customer.name} now has {format_money(customer.money)} "
-                f"dollars\n"
-            )
+
+            cash = customer.count_cash()
+            print(f"{customer.name} now has {format_money(cash)} dollars\n")
         else:
             print(
                 f"{customer.name} doesn't have enough money to make "

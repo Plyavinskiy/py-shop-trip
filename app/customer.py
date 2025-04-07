@@ -26,8 +26,12 @@ class Customer:
         self.name = name
         self.product_cart = product_cart
         self.location = location
+        self.home_location = location
         self.money = money
         self.car = Car(**car)
+
+    def count_cash(self) -> float:
+        return round(self.money, 2)
 
     def pay(self, amount: float) -> None:
         self.money = round(self.money - amount, 2)
@@ -70,3 +74,24 @@ class Customer:
         products_cost = self.calculate_products_cost(shop)
 
         return round(total_fuel_cost + products_cost, 2)
+
+    def find_affordable_shops(
+        self,
+        shops: list[Shop],
+        fuel_price: float
+    ) -> list[tuple[Shop, float]]:
+        affordable_shops = []
+        for shop in shops:
+            cost = self.calculate_trip_cost(shop, fuel_price)
+            if cost <= self.money:
+                affordable_shops.append((shop, cost))
+        return affordable_shops
+
+    def choose_best_shop(
+        self,
+        affordable_shops: list[tuple[Shop, float]]
+    ) -> tuple[Shop, float]:
+        return min(affordable_shops, key=lambda item: item[1])
+
+    def travel_to(self, destination: tuple[int, int]) -> None:
+        self.location = destination

@@ -1,4 +1,5 @@
 import json
+import os
 
 from app.customer import Customer
 from app.shop import Shop
@@ -6,16 +7,22 @@ from app.utils import format_money
 
 
 def shop_trip() -> None:
+    config_path = os.path.join(os.path.dirname(__file__), "config.json")
+
     try:
-        with open("app/config.json", "r") as config_file:
+        with open(config_path, "r") as config_file:
             data = json.load(config_file)
     except (FileNotFoundError, json.JSONDecodeError) as e:
         print(f"Error loading config: {e}")
         return
 
-    fuel_price = data["FUEL_PRICE"]
-    customers_data = data["customers"]
-    shops_data = data["shops"]
+    try:
+        fuel_price = data["FUEL_PRICE"]
+        customers_data = data["customers"]
+        shops_data = data["shops"]
+    except KeyError as e:
+        print(f"Missing key in config file: {e}")
+        return
 
     customers = []
     for info in customers_data:

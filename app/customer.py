@@ -5,8 +5,8 @@ from app.car import Car
 from app.shop import Shop
 
 
-FUEL_CONSUMPTION_UNIT = 100
-ROUND_TRIP_FACTOR = 2
+FUEL_CONSUMPTION_PER_100KM = 100
+TRIP_DIRECTION_MULTIPLIER = 2
 
 
 class CarData(TypedDict):
@@ -26,7 +26,7 @@ class Customer:
         self.name = name
         self.product_cart = product_cart
         self.location = location
-        self.home_location = location
+        self.start_location = location
         self.money = money
         self.car = Car(**car)
 
@@ -39,20 +39,20 @@ class Customer:
     def has_all_products(self, shop: Shop) -> bool:
         return set(self.product_cart).issubset(shop.products)
 
-    def calculate_distance_to_shop(self, shop: Shop) -> float:
+    def calculate_distance_to(self, shop: Shop) -> float:
         x1, y1 = self.location
         x2, y2 = shop.location
         return math.sqrt((x1 - x2) ** 2 + (y1 - y2) ** 2)
 
-    def calculate_fuel_cost_to_shop(
+    def calculate_fuel_cost_to(
         self,
         shop: Shop,
         fuel_price: float
     ) -> float:
-        distance = self.calculate_distance_to_shop(shop)
+        distance = self.calculate_distance_to(shop)
         fuel_used = (
             distance * self.car.fuel_consumption
-        ) / FUEL_CONSUMPTION_UNIT
+        ) / FUEL_CONSUMPTION_PER_100KM
         return fuel_used * fuel_price
 
     def calculate_products_cost(self, shop: Shop) -> float:
@@ -69,23 +69,30 @@ class Customer:
         if not self.has_all_products(shop):
             return float("inf")
 
-        fuel_cost = self.calculate_fuel_cost_to_shop(shop, fuel_price)
-        total_fuel_cost = fuel_cost * ROUND_TRIP_FACTOR
+        fuel_cost = self.calculate_fuel_cost_to(shop, fuel_price)
+        total_fuel_cost = fuel_cost * TRIP_DIRECTION_MULTIPLIER
         products_cost = self.calculate_products_cost(shop)
 
         return round(total_fuel_cost + products_cost, 2)
 
-    def find_affordable_shops(
+    def calculate_trip_costs(
         self,
         shops: list[Shop],
         fuel_price: float
     ) -> list[tuple[Shop, float]]:
-        affordable_shops = []
-        for shop in shops:
-            cost = self.calculate_trip_cost(shop, fuel_price)
-            if cost <= self.money:
-                affordable_shops.append((shop, cost))
-        return affordable_shops
+        return [
+            (shop, self.calculate_trip_cost(shop, fuel_price))
+            for shop in shops
+        ]
+
+    def find_affordable_shops(
+        self,
+        trip_costs: list[tuple[Shop, float]]
+    ) -> list[tuple[Shop, float]]:
+        return [
+            (shop, cost) for shop, cost in trip_costs
+            if cost <= self.money
+        ]
 
     def choose_best_shop(
         self,
@@ -95,3 +102,7 @@ class Customer:
 
     def travel_to(self, destination: tuple[int, int]) -> None:
         self.location = destination
+
+    def visit_shop(self, shop: Shop, total_cost: float) -> None:
+        self.pay(total_cost)
+        shop.handle_purchase(self)

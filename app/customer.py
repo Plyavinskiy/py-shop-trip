@@ -1,17 +1,12 @@
 import math
-from typing import TypedDict
 
 from app.car import Car
+from app.constants import (
+    FUEL_CONSUMPTION_PER_100KM,
+    TRIP_DIRECTION_MULTIPLIER,
+)
 from app.shop import Shop
-
-
-FUEL_CONSUMPTION_PER_100KM = 100
-TRIP_DIRECTION_MULTIPLIER = 2
-
-
-class CarData(TypedDict):
-    brand: str
-    fuel_consumption: float
+from app.types.types import CarData
 
 
 class Customer:
@@ -21,7 +16,7 @@ class Customer:
         product_cart: dict[str, int],
         location: tuple[int, int],
         money: float,
-        car: CarData
+        car: CarData,
     ) -> None:
         self.name = name
         self.product_cart = product_cart
@@ -42,12 +37,12 @@ class Customer:
     def calculate_distance_to(self, shop: Shop) -> float:
         x1, y1 = self.location
         x2, y2 = shop.location
-        return math.sqrt((x1 - x2) ** 2 + (y1 - y2) ** 2)
+        return math.hypot(x2 - x1, y2 - y1)
 
     def calculate_fuel_cost_to(
         self,
         shop: Shop,
-        fuel_price: float
+        fuel_price: float,
     ) -> float:
         distance = self.calculate_distance_to(shop)
         fuel_used = (
@@ -64,7 +59,7 @@ class Customer:
     def calculate_trip_cost(
         self,
         shop: Shop,
-        fuel_price: float
+        fuel_price: float,
     ) -> float:
         if not self.has_all_products(shop):
             return float("inf")
@@ -78,7 +73,7 @@ class Customer:
     def calculate_trip_costs(
         self,
         shops: list[Shop],
-        fuel_price: float
+        fuel_price: float,
     ) -> list[tuple[Shop, float]]:
         return [
             (shop, self.calculate_trip_cost(shop, fuel_price))
@@ -87,18 +82,22 @@ class Customer:
 
     def find_affordable_shops(
         self,
-        trip_costs: list[tuple[Shop, float]]
+        trip_costs: list[tuple[Shop, float]],
     ) -> list[tuple[Shop, float]]:
         return [
-            (shop, cost) for shop, cost in trip_costs
+            (shop, cost)
+            for shop, cost in trip_costs
             if cost <= self.money
         ]
 
     def choose_best_shop(
         self,
-        affordable_shops: list[tuple[Shop, float]]
+        affordable_shops: list[tuple[Shop, float]],
     ) -> tuple[Shop, float]:
-        return min(affordable_shops, key=lambda item: item[1])
+        return min(
+            affordable_shops,
+            key=lambda shop_with_cost: shop_with_cost[1],
+        )
 
     def travel_to(self, destination: tuple[int, int]) -> None:
         self.location = destination

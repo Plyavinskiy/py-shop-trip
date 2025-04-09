@@ -1,41 +1,22 @@
 import json
 import os
-from typing import TypedDict
-
-
-class CustomerData(TypedDict):
-    name: str
-    product_cart: dict[str, int]
-    location: tuple[int, int]
-    money: float
-    car: dict[str, float]
-
-
-class ShopData(TypedDict):
-    name: str
-    location: tuple[int, int]
-    products: dict[str, float]
+from app.types.types import ConfigData
 
 
 def get_config_path() -> str:
     return os.path.join(os.path.dirname(__file__), "config.json")
 
 
-def load_config(path: str) -> dict:
+def load_config(path: str) -> ConfigData:
     try:
-        with open(path, "r") as file:
-            return json.load(file)
+        with open(path, "r", encoding="utf-8") as config_file:
+            raw_data = json.load(config_file)
     except (FileNotFoundError, json.JSONDecodeError) as e:
-        raise RuntimeError(f"Error loading config: {e}")
+        raise RuntimeError(f"Failed to load config file: {e}") from e
 
+    if not isinstance(raw_data, dict):
+        raise RuntimeError(
+            "Invalid config format: expected JSON object at top level."
+        )
 
-def extract_config_values(
-    data: dict
-) -> tuple[float, list[CustomerData], list[ShopData]]:
-    try:
-        fuel_price = data["FUEL_PRICE"]
-        customers_data = data["customers"]
-        shops_data = data["shops"]
-        return fuel_price, customers_data, shops_data
-    except KeyError as e:
-        raise KeyError(f"Missing key in config file: {e}")
+    return raw_data  # type: ignore[return-value]

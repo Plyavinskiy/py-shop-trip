@@ -1,27 +1,33 @@
-from app.config_loader import CustomerData, ShopData
 from app.customer import Customer
 from app.shop import Shop
+from app.types.types import CustomerData, ShopData
 
 
-def create_customers(customers_data: list[CustomerData]) -> list[Customer]:
+def create_customers(customers: list[CustomerData]) -> list[Customer]:
     return [
         Customer(
-            name=data["name"],
-            product_cart=data["product_cart"],
-            location=(int(data["location"][0]), int(data["location"][1])),
-            money=data["money"],
-            car=data["car"]
+            name=customer["name"],
+            product_cart=customer["product_cart"],
+            location=(
+                int(customer["location"][0]),
+                int(customer["location"][1])
+            ),
+            money=customer["money"],
+            car=customer["car"]
         )
-        for data in customers_data
+        for customer in customers
     ]
 
 
-def create_shops(shops_data: list[ShopData]) -> list[Shop]:
+def create_shops(shops: list[ShopData]) -> list[Shop]:
     return [
         Shop(
-            name=data["name"],
-            location=(int(data["location"][0]), int(data["location"][1])),
-            products=data["products"]
+            name=shop["name"],
+            location=(
+                int(shop["location"][0]),
+                int(shop["location"][1])
+            ),
+            products=shop["products"]
         )
-        for data in shops_data
+        for shop in shops
     ]

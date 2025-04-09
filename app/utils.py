@@ -1,9 +1,9 @@
-def format_money(value: float) -> str:
-    is_int = isinstance(value, int)
-    is_float_int = isinstance(value, float) and value.is_integer()
+def format_money(amount: float) -> str:
+    if isinstance(amount, int):
+        return str(amount)
 
-    if is_int or is_float_int:
-        return str(int(value))
+    if isinstance(amount, float) and amount.is_integer():
+        return str(int(amount))
 
-    value_str = f"{value: .2f}".lstrip()
-    return value_str.rstrip("0").rstrip(".")
+    formatted = f"{amount: .2f}".lstrip()
+    return formatted.rstrip("0").rstrip(".")
